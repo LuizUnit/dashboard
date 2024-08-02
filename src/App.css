@@ -1,0 +1,203 @@
+.json-viewer {
+  display: inline-block;
+  overflow: scroll;
+  height: 563px;
+  width: 100%;
+  color: rgb(0, 140, 255); /* Cor do texto */
+  background-color: #ffffff;
+  padding: 10px 10px 10px 20px;
+  border: 2px solid #ffffff; /* Cor da borda */
+  border-radius: 0.4em; /* Bordas arredondadas */
+  margin-bottom: 3px; /* Margem inferior */
+  white-space: pre-wrap;
+  overflow-x: hidden;
+}
+
+.json-viewer ul {
+  list-style-type: none;
+  margin: 0;
+  margin-left: 1px; /* Corrigido para margem esquerda */
+  border-left: 3px dotted #ccc; /* Bordas esquerda */
+  padding-left: 2em; /* Espaçamento à esquerda */
+}
+
+.json-viewer.hide {
+  display: none;
+}
+
+/* Tipos de dados específicos */
+.json-viewer ul li.string,
+.json-viewer ul li.date {
+  color: #05bcaf; /* Cor para strings e datas */
+}
+
+.json-viewer ul li.boolean {
+  color: #f6bb42; /* Cor para booleanos */
+  font-weight: bold; /* Negrito para booleanos */
+}
+
+.json-viewer ul li.number {
+  color: #e87376; /* Cor para números */
+}
+
+.json-viewer ul li.null {
+  color: #ec87c0; /* Cor para null */
+}
+
+.json-viewer a.list-link {
+  color: #656d78; /* Cor para links */
+  text-decoration: none; /* Removendo sublinhado padrão */
+  position: relative; /* Posicionamento relativo */
+}
+
+.json-viewer a.list-link:before {
+  color: #aaa; /* Cor do ícone */
+  content: "\25BC"; /* Ícone para expandir */
+  position: absolute;
+  display: inline-block;
+  width: 1em;
+  left: -1em;
+}
+
+.json-viewer a.list-link.collapsed:before {
+  content: "\25B6"; /* Ícone para colapsar */
+}
+
+.json-viewer a.list-link.empty:before {
+  content: ""; /* Ícone vazio */
+}
+
+.json-viewer.items-ph {
+  color: #aaa; /* Cor para comentários */
+  padding: 0 1em; /* Espaçamento interno */
+}
+
+.json-viewer.items-ph:hover {
+  text-decoration: underline; /* Sublinhado ao passar o mouse */
+}
+
+#list-item {
+  display: flex;
+  align-items: center !important;
+  /* justify-content: space-between; */
+  /* gap: 10px; */
+}
+/* .form-control{
+  width: 100px !important;
+} */
+
+#li-body {
+  min-height: 60px;
+}
+
+.row-item {
+  max-width: 20%;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+.row-item > .badge {
+  border: 5px solid #0d6efd;
+}
+
+#submit-button-filter {
+  width: 20%;
+}
+
+.status-circle {
+  font-size: 32px;
+}
+
+.li-body {
+  opacity: 0;
+  transform: translateX(100px);
+  transition: 150ms;
+}
+
+.li-body.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+#submit-button-filter {
+  color: wheat !important;
+}
+
+.bg-dark {
+  --bs-bg-opacity: 1;
+  background-color: #131313 !important;
+}
+
+.accordion-body {
+  display: flex !important;
+  justify-content: end
+}
+
+#filter-form{
+  margin-top: 20px;
+} 
+
+.fa-copy {
+  font-size: 20px !important;
+  background-color: #0d6efd;
+  border: 8px solid #0d6efd;
+  border-radius: 10px;
+  color: #ffffff;
+  position: absolute !important;
+  z-index: 2;
+  transition: ease-in-out 0.3s;
+  margin-top: 0.75rem;
+  margin-right: 2rem;
+}
+
+.fa-copy:hover  {
+  background-color: #014fc5;
+  border: 8px solid #014fc5;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.fa-copy {
+  background-color: #ffffff;
+  border: 8px solid #ffffff;
+  color: #014fc5;
+  cursor: pointer;
+}
+
+.fa-copy:active {
+  box-shadow: 05px 05px 10px rgba(0, 0, 0, 0.388); /* Adiciona uma boa box-shadow */
+} 
+
+
+
+.expand-button{
+  justify-self: start !important;
+  background-color: rgb(0, 0,0,0);  
+  transition:ease-in-out 0.3s;
+  border-radius: 10%;
+  border-style: none;
+}
+
+.expand-button:hover > i{
+  color: #014fc5;
+}
+
+.expand-button:hover {
+  background-color: #ffffffd2;
+}
+
+.expand-button:active{
+  background-color: #014fc5;
+}
+.expand-button:active > i {
+  color: #ffffffd2;
+}
+
+.expand-button > i {
+  color: #ffffff;
+}
+
+.lockClick{
+  pointer-events: none !important;
+}
