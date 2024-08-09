@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 
-export function PopNotifier({ fatal, warn }) {
+export function PopNotifier({fatal, warn}) {
   return (
-    <div className="container d-flex align-items-center justify-content-end">
+    <div
+      className="container d-flex align-items-center justify-content-end"
+      id="flash-pop-notifies">
       <button
         type="button"
         className="btn btn-danger position-relative"
-        aria-label="Fatal Errors"
-      >
+        aria-label="Fatal Errors">
         Fatals
         <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
           {fatal}
@@ -17,8 +18,7 @@ export function PopNotifier({ fatal, warn }) {
       <button
         type="button"
         className="btn btn-warning position-relative ms-4"
-        aria-label="Warnings"
-      >
+        aria-label="Warnings">
         Warns
         <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
           {warn}
@@ -30,18 +30,14 @@ export function PopNotifier({ fatal, warn }) {
 }
 
 export default function Notifier() {
-  const [errorCount, setErrorCount] = useState(0);
   const [warnCount, setWarnCount] = useState(0);
   const [fatalCount, setFatalCount] = useState(0);
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
-      const newErrorCount = await UpdateInfos();
-      const newFatalCount = await getFatals();
-      const newWarnCount = await getWarns();
-      setErrorCount(newErrorCount);
-      setWarnCount(newFatalCount);
-      setFatalCount(newWarnCount);
+      await UpdateInfos();
+      setWarnCount(await getErrors("warn"));
+      setFatalCount(await getErrors("fatal"));
     }, 3000);
 
     return () => clearInterval(intervalId);
@@ -56,7 +52,7 @@ export default function Notifier() {
 
 async function UpdateInfos() {
   try {
-    const count = await getErrors();
+    const count = await getErrors("erros");
     if (count > 0) {
       document.title = `${count} New Errors!`;
       return count;
@@ -67,38 +63,14 @@ async function UpdateInfos() {
   return 0;
 }
 
-async function getErrors() {
+async function getErrors(param) {
   try {
     const response = await axios.get(
-      "http://127.0.0.1:8000/api/processados/erros"
+      "http://127.0.0.1:8000/api/processados/" + param
     );
     return response.data[0]?.count || 0;
   } catch (error) {
-    console.error("Erro ao requisitar erros:", error);
-    return 0;
-  }
-}
-
-async function getWarns() {
-  try {
-    const response = await axios.get(
-      "http://127.0.0.1:8000/api/processados/warn"
-    );
-    return response.data[0]?.count || 0;
-  } catch (error) {
-    console.error("Erro ao requisitar warns:", error);
-    return 0;
-  }
-}
-
-async function getFatals() {
-  try {
-    const response = await axios.get(
-      "http://127.0.0.1:8000/api/processados/fatal"
-    );
-    return response.data[0]?.count || 0;
-  } catch (error) {
-    console.error("Erro ao requisitar fatals:", error);
+    console.error("Erro ao requisitar:", error);
     return 0;
   }
 }

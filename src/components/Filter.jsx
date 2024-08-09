@@ -24,36 +24,35 @@ export default function Filter() {
     switch (target.name) {
       case "check-box-warn":
         setwarnChecked(value);
-        break;
       case "check-box-success":
         setSuccessChecked(value);
-        break;
       case "check-box-running":
         setRunningChecked(value);
-        break;
       case "check-box-failure":
         setFatalChecked(value);
-        break;
-      default:
-        break;
     }
   };
 
   useEffect(() => {
-    $(function() {
-        $('input[name="daterange"]').daterangepicker({
-          opens: 'left'
-        });
+    $(function () {
+      $('input[name="datetimes"]').daterangepicker({
+        opens: "left",
+        timePicker: true,
+        locale: {
+          format: "DD/MM/YYYY HH:mm",
+        },
       });
+    });
     getProcedures(); // Chamada corrigida
   }, []);
 
   return (
     <form
       id="filter-form"
-      className="container d-flex justify-content-center align-items-center flex-column pb-3">
-      <div className="container d-flex justify-content-center pb-3">
-        <div className="w-20 me-3">
+      className="mx-4"
+    >
+      <div>
+        <div>
           <input
             list="datalistOptions"
             name="procedure"
@@ -72,7 +71,7 @@ export default function Filter() {
           <div className="date" data-provide="datepicker">
             <input
               type="text"
-              name="daterange"
+              name="datetimes"
               className="form-control"
               placeholder="Selecione uma data"
             />

@@ -3,7 +3,7 @@ export default function Navbar() {
 
 
     return (
-        <nav className="navbar navbar-expand-lg bg-white">
+        <nav className="navbar navbar-expand-lg  position-sticky sticky-top bg-white">
             <div className="container-fluid">
                 <button
                     className="navbar-toggler"

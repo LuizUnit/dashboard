@@ -16,24 +16,20 @@
 .json-viewer ul {
   list-style-type: none;
   margin: 0;
-  margin-left: 1px; /* Corrigido para margem esquerda */
-  border-left: 3px dotted #ccc; /* Bordas esquerda */
-  padding-left: 2em; /* Espaçamento à esquerda */
 }
 
 .json-viewer.hide {
   display: none;
 }
 
-/* Tipos de dados específicos */
 .json-viewer ul li.string,
 .json-viewer ul li.date {
-  color: #05bcaf; /* Cor para strings e datas */
+  color: #05bcaf;
 }
 
 .json-viewer ul li.boolean {
-  color: #f6bb42; /* Cor para booleanos */
-  font-weight: bold; /* Negrito para booleanos */
+  color: #f6bb42;
+  font-weight: bold;
 }
 
 .json-viewer ul li.number {
@@ -69,25 +65,15 @@
 
 .json-viewer.items-ph {
   color: #aaa; /* Cor para comentários */
-  padding: 0 1em; /* Espaçamento interno */
 }
 
 .json-viewer.items-ph:hover {
-  text-decoration: underline; /* Sublinhado ao passar o mouse */
+  text-decoration: underline;
 }
 
 #list-item {
   display: flex;
   align-items: center !important;
-  /* justify-content: space-between; */
-  /* gap: 10px; */
-}
-/* .form-control{
-  width: 100px !important;
-} */
-
-#li-body {
-  min-height: 60px;
 }
 
 .row-item {
@@ -99,10 +85,6 @@
 }
 .row-item > .badge {
   border: 5px solid #0d6efd;
-}
-
-#submit-button-filter {
-  width: 20%;
 }
 
 .status-circle {
@@ -131,12 +113,8 @@
 
 .accordion-body {
   display: flex !important;
-  justify-content: end
+  justify-content: end;
 }
-
-#filter-form{
-  margin-top: 20px;
-} 
 
 .fa-copy {
   font-size: 20px !important;
@@ -151,7 +129,7 @@
   margin-right: 2rem;
 }
 
-.fa-copy:hover  {
+.fa-copy:hover {
   background-color: #014fc5;
   border: 8px solid #014fc5;
   color: #ffffff;
@@ -167,19 +145,17 @@
 
 .fa-copy:active {
   box-shadow: 05px 05px 10px rgba(0, 0, 0, 0.388); /* Adiciona uma boa box-shadow */
-} 
+}
 
-
-
-.expand-button{
+.expand-button {
   justify-self: start !important;
-  background-color: rgb(0, 0,0,0);  
-  transition:ease-in-out 0.3s;
+  background-color: rgb(0, 0, 0, 0);
+  transition: ease-in-out 0.3s;
   border-radius: 10%;
   border-style: none;
 }
 
-.expand-button:hover > i{
+.expand-button:hover > i {
   color: #014fc5;
 }
 
@@ -187,7 +163,7 @@
   background-color: #ffffffd2;
 }
 
-.expand-button:active{
+.expand-button:active {
   background-color: #014fc5;
 }
 .expand-button:active > i {
@@ -198,6 +174,29 @@
   color: #ffffff;
 }
 
-.lockClick{
+.lockClick {
   pointer-events: none !important;
+}
+
+.fa-lock {
+  font-size: 25px;
+  color: #014fc5;
+  z-index: 1;
+  position: absolute;
+}
+
+.checkbox-status,
+.select-all-box {
+  height: 30px;
+  width: 30px;
+}
+
+#select-all-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-group-item{
+  display: inline-block;
 }

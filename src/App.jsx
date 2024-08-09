@@ -1,10 +1,11 @@
 import "./App.css";
-import { useLayoutEffect } from "react";
+import {useLayoutEffect} from "react";
 import Filter from "./components/Filter";
 import Navbar from "./components/Navbar.jsx";
 import Notifier from "./components/RefreshPopInfos.jsx";
 
 function App() {
+  var itensParaCorrecao = new Set();
   var formData;
 
   function destroyOl() {
@@ -54,7 +55,7 @@ function App() {
       const response = await axios.put(
         "http://127.0.0.1:8000/api/processados",
         {
-          params: { id: id },
+          params: {id: id},
         }
       );
     } catch (error) {
@@ -84,7 +85,7 @@ function App() {
       if (!existingOl) {
         const div = document.getElementById("contains-ol");
         const olElement = document.createElement("ol");
-        olElement.className = "list-group accordion";
+        olElement.className = "list-group accordion w-50";
         olElement.id = "ol-body";
         div.appendChild(olElement);
         createOlHeader();
@@ -97,7 +98,7 @@ function App() {
   function createOlHeader() {
     const liElement = document.createElement("li");
     liElement.className =
-      "list-group-item accordion-item bg-light justify-content-center align-items-center";
+      "position-sticky sticky-top list-group-item accordion-item bg-light justify-content-center align-items-center";
     liElement.id = "li-header";
 
     const divHeader = document.createElement("div");
@@ -121,8 +122,10 @@ function App() {
     spanData.textContent = "Data";
 
     const corrigido = document.createElement("span");
+    let selectAllBox = CreateSelectAllBox();
+    corrigido.appendChild(selectAllBox);
+
     corrigido.className = "fw-bold col-1 row-item";
-    corrigido.textContent = "Corrigido";
 
     const emptySpace = document.createElement("span");
     emptySpace.className = "fw-bold col-1 row-item";
@@ -138,17 +141,57 @@ function App() {
     document.getElementById("ol-body").appendChild(liElement);
   }
 
+  function CreateSelectAllBox() {
+    let inputElement = document.createElement("input");
+    inputElement.className = "form-check-input select-all-box";
+    inputElement.type = "checkbox";
+
+    let divElement = document.createElement("div");
+    divElement.className =
+      "d-flex justify-content-center align-items-center form-check col-1 row-item";
+    divElement.appendChild(inputElement);
+
+    let iconElement = document.createElement("i");
+    iconElement.className = "fa-solid fa-caret-down";
+    divElement.appendChild(iconElement);
+
+    divElement.addEventListener("click", function (e) {
+      e.stopPropagation(); // Impede que o evento se propague para elementos pais
+
+      var checkboxes = document.getElementsByClassName("checkbox-status");
+      for (let i = 0; i < checkboxes.length; i++) {
+        if (inputElement.checked) {
+          let iconElements =
+            checkboxes[i].parentElement.getElementsByTagName("i");
+          if (iconElements.length == 0) {
+            // Verifica se há elementos <i> presentes
+            checkboxes[i].checked = true; // Usa true para marcar o checkbox
+          } else {
+            checkboxes[i].checked = false; // Usa false para desmarcar o checkbox
+          }
+        } else {
+          checkboxes[i].checked = false; // Usa false para desmarcar o checkbox
+        }
+      }
+    });
+
+    return divElement;
+  }
+
   function createCheckBox(status, id) {
     let inputElement = document.createElement("input");
-    inputElement.className = "form-check-input";
+    inputElement.className = "form-check-input checkbox-status";
     inputElement.id = "input" + id;
     inputElement.type = "checkbox";
 
     if (status === "SUCCESS") {
-      inputElement.setAttribute("checked", "");
-    }
-    if (status === "SUCCESS" || status === "RUNNING") {
-      inputElement.classList.add("lockClick"); // Corrected line
+      inputElement.classList.add("lockClick");
+      let lock_element = document.createElement("i");
+      lock_element.className = "fa-solid fa-lock ";
+      return `<div class="form-check col-1 row-item text-dark">
+            ${lock_element.outerHTML}
+            ${inputElement.outerHTML}
+        </div>`;
     }
 
     return `<div class="form-check col-1 row-item">
@@ -182,9 +225,6 @@ function App() {
       "list-group-item",
       "bg-dark",
       "text-white",
-      "container",
-      "d-flex",
-      "flex-column",
       "justify-content-center"
     );
 
@@ -255,7 +295,7 @@ function App() {
       let minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
       let seconds = Math.floor(diffInSeconds % 60);
 
-      return { days, hours, minutes, seconds };
+      return {days, hours, minutes, seconds};
     }
     return "Em progresso";
   }
@@ -278,7 +318,7 @@ function App() {
   async function getLogs(lastIndex) {
     await axios
       .post("http://127.0.0.1:8000/api/processados", formData, {
-        params: { lastIndex: lastIndex },
+        params: {lastIndex: lastIndex},
       })
       .then(function (response) {
         const data = response.data;
@@ -295,18 +335,15 @@ function App() {
           observer.observe(listItem);
           olBody.appendChild(listItem);
           let input = document.getElementById("input" + el.id);
-
-          if (input) {
-            input.addEventListener("click", function () {
-              input.setAttribute("checked", "");
-              input = document.getElementById("input" + el.id);
-              if (input.hasAttribute("checked")) {
-                input.classList.add("lockClick");
-                
-                corrigeTask(el.id);
-              }
-            });
-          }
+          input.addEventListener("click", function () {
+            let inputId = "input" + el.id;
+            if (itensParaCorrecao.has(inputId)) {
+              itensParaCorrecao.delete(inputId);
+            } else {
+              itensParaCorrecao.add(inputId);
+            }
+            input = document.getElementById(inputId);
+          });
 
           const i = document.getElementById(el.id).querySelector(".fa-copy");
           i.addEventListener("click", function (el) {
@@ -321,26 +358,29 @@ function App() {
       });
   }
 
-  const lastCardObserver = new IntersectionObserver((entries) => {
-    const lastCard = entries[0];
-    if (!lastCard.isIntersecting) return;
-    loadContent(lastCard.target.id);
-    lastCardObserver.unobserve(lastCard.target);
-  }, {});
+// Definição das opções para ambos os observadores
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      entry.target.classList.toggle("show", entry.isIntersecting);
-    });
+// Primeiro observador para carregar conteúdo quando o último cartão entra na viewport
+const lastCardObserver = new IntersectionObserver((entries) => {
+  const lastCard = entries[0];
+  if (!lastCard.isIntersecting) return;
+  loadContent(lastCard.target.id);
+  lastCardObserver.unobserve(lastCard.target);
+});
+
+// Segundo observador para adicionar/remover a classe 'show' com base na interseção
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    entry.target.classList.toggle("show", entry.isIntersecting);
   });
-
+});
   return (
     <>
-      <Navbar />
-      <Filter />
       <Notifier />
       <br></br>
-      <div className="container" id="contains-ol"></div>
+      <div className="d-flex flex-row justify-content-center" id="contains-ol">
+      <Filter />
+      </div>
     </>
   );
 }
