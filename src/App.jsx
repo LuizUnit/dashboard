@@ -1,5 +1,5 @@
 import "./App.css";
-import {useLayoutEffect} from "react";
+import { useLayoutEffect } from "react";
 import Filter from "./components/Filter";
 import Navbar from "./components/Navbar.jsx";
 import Notifier from "./components/RefreshPopInfos.jsx";
@@ -55,7 +55,7 @@ function App() {
       const response = await axios.put(
         "http://127.0.0.1:8000/api/processados",
         {
-          params: {id: id},
+          params: { id: id },
         }
       );
     } catch (error) {
@@ -85,7 +85,7 @@ function App() {
       if (!existingOl) {
         const div = document.getElementById("contains-ol");
         const olElement = document.createElement("ol");
-        olElement.className = "list-group accordion w-50";
+        olElement.className = "list-group accordion w-100 pe-3";
         olElement.id = "ol-body";
         div.appendChild(olElement);
         createOlHeader();
@@ -187,14 +187,15 @@ function App() {
     if (status === "SUCCESS") {
       inputElement.classList.add("lockClick");
       let lock_element = document.createElement("i");
-      lock_element.className = "fa-solid fa-lock ";
-      return `<div class="form-check col-1 row-item text-dark">
-            ${lock_element.outerHTML}
-            ${inputElement.outerHTML}
+      lock_element.className = "fa-solid fa-lock pt-1";
+      return `<div class=" col-1 row-item d-flex align-items-center justify-content-center">
+        <div class="fake-input">
+        ${lock_element.outerHTML}
+        </div>
         </div>`;
     }
 
-    return `<div class="form-check col-1 row-item">
+    return `<div class="col-1 row-item">
             ${inputElement.outerHTML}
         </div>`;
   }
@@ -295,7 +296,7 @@ function App() {
       let minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
       let seconds = Math.floor(diffInSeconds % 60);
 
-      return {days, hours, minutes, seconds};
+      return { days, hours, minutes, seconds };
     }
     return "Em progresso";
   }
@@ -318,7 +319,7 @@ function App() {
   async function getLogs(lastIndex) {
     await axios
       .post("http://127.0.0.1:8000/api/processados", formData, {
-        params: {lastIndex: lastIndex},
+        params: { lastIndex: lastIndex },
       })
       .then(function (response) {
         const data = response.data;
@@ -358,28 +359,30 @@ function App() {
       });
   }
 
-// Definição das opções para ambos os observadores
+  // Definição das opções para ambos os observadores
 
-// Primeiro observador para carregar conteúdo quando o último cartão entra na viewport
-const lastCardObserver = new IntersectionObserver((entries) => {
-  const lastCard = entries[0];
-  if (!lastCard.isIntersecting) return;
-  loadContent(lastCard.target.id);
-  lastCardObserver.unobserve(lastCard.target);
-});
-
-// Segundo observador para adicionar/remover a classe 'show' com base na interseção
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    entry.target.classList.toggle("show", entry.isIntersecting);
+  // Primeiro observador para carregar conteúdo quando o último cartão entra na viewport
+  const lastCardObserver = new IntersectionObserver((entries) => {
+    const lastCard = entries[0];
+    if (!lastCard.isIntersecting) return;
+    loadContent(lastCard.target.id);
+    lastCardObserver.unobserve(lastCard.target);
   });
-});
+
+  // Segundo observador para adicionar/remover a classe 'show' com base na interseção
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle("show", entry.isIntersecting);
+    });
+  });
   return (
     <>
-      <Notifier />
-      <br></br>
-      <div className="d-flex flex-row justify-content-center" id="contains-ol">
-      <Filter />
+      <div
+        className=" d-flex flex-row row-4 justify-content-center"
+        id="contains-ol"
+      >
+        <Notifier />
+        <Filter />
       </div>
     </>
   );

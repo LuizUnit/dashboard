@@ -1,3 +1,7 @@
+body{
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
 .json-viewer {
   display: inline-block;
   overflow: scroll;
@@ -182,13 +186,16 @@
   font-size: 25px;
   color: #014fc5;
   z-index: 1;
-  position: absolute;
+  position: relative;
 }
 
 .checkbox-status,
-.select-all-box {
+.select-all-box, .fake-input  {
   height: 30px;
+  min-width: 30px;
   width: 30px;
+  border-radius: 0.25em;
+  background-color: white;
 }
 
 #select-all-div {
@@ -199,4 +206,11 @@
 
 .list-group-item{
   display: inline-block;
+}
+
+#ol-body {
+  overflow-y: auto; /* Permite rolagem vertical */
+  overflow-x: hidden; /* Impede rolagem horizontal */
+  max-height: 550px; /* Define a altura máxima do elemento */
+  scrollbar-base-color: #014fc5;
 }
