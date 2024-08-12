@@ -211,6 +211,5 @@ body{
 #ol-body {
   overflow-y: auto; /* Permite rolagem vertical */
   overflow-x: hidden; /* Impede rolagem horizontal */
-  max-height: 550px; /* Define a altura máxima do elemento */
-  scrollbar-base-color: #014fc5;
+  max-height: 100vh; /* Define a altura máxima do elemento */
 }

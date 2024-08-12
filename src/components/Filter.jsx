@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react";
 
 export default function Filter() {
   const [procedures, setProcedures] = useState(null);
@@ -24,12 +24,16 @@ export default function Filter() {
     switch (target.name) {
       case "check-box-warn":
         setwarnChecked(value);
+        break;
       case "check-box-success":
         setSuccessChecked(value);
+        break;
       case "check-box-running":
         setRunningChecked(value);
+        break;
       case "check-box-failure":
         setFatalChecked(value);
+        break;
     }
   };
 
@@ -40,22 +44,21 @@ export default function Filter() {
         timePicker: true,
         locale: {
           format: "DD/MM/YYYY HH:mm",
-        },
+        }
       });
     });
     getProcedures(); // Chamada corrigida
   }, []);
 
   return (
-    <form id="filter-form" className="mx-4 col">
+    <form id="filter-form" className="col">
       <div>
         <input
           list="datalistOptions"
           name="procedure"
-          className="form-control"
+          className="form-control mb-2"
           id="exampleDataList"
-          placeholder="Escolha um procedimento"
-        ></input>
+          placeholder="Escolha um procedimento"></input>
         <datalist id="datalistOptions">
           {procedures &&
             procedures.map((procedure, index) => (
@@ -69,7 +72,7 @@ export default function Filter() {
           <input
             type="text"
             name="datetimes"
-            className="form-control"
+            className="form-control mb-2"
             placeholder="Selecione uma data"
           />
           <div className="input-group-addon">
@@ -87,8 +90,7 @@ export default function Filter() {
             value=""
             id="flexCheckChecked1"
             checked={warnChecked}
-            onChange={handleCheckboxChange}
-          ></input>
+            onChange={handleCheckboxChange}></input>
 
           <label className="form-check-label" htmlFor="flexCheckChecked1">
             Atenção
@@ -102,8 +104,7 @@ export default function Filter() {
             value=""
             id="flexCheckChecked2"
             checked={successChecked}
-            onChange={handleCheckboxChange}
-          ></input>
+            onChange={handleCheckboxChange}></input>
           <label className="form-check-label" htmlFor="flexCheckChecked2">
             Sucesso
           </label>
@@ -116,14 +117,13 @@ export default function Filter() {
             value=""
             id="flexCheckChecked3"
             checked={runningChecked}
-            onChange={handleCheckboxChange}
-          ></input>
+            onChange={handleCheckboxChange}></input>
 
           <label className="form-check-label" htmlFor="flexCheckChecked3">
             Em progresso
           </label>
         </div>
-        <div className="form-check text-white">
+        <div className="form-check text-white mb-2">
           <input
             className="form-check-input"
             type="checkbox"
@@ -131,8 +131,7 @@ export default function Filter() {
             value=""
             id="flexCheckChecked4"
             checked={fatalChecked}
-            onChange={handleCheckboxChange}
-          ></input>
+            onChange={handleCheckboxChange}></input>
 
           <label className="form-check-label" htmlFor="flexCheckChecked4">
             Erro Fatal
@@ -142,8 +141,7 @@ export default function Filter() {
       <button
         id="submit-button-filter"
         tyrette="button"
-        className="btn btn-primary"
-      >
+        className="btn btn-primary">
         Submit
       </button>
     </form>

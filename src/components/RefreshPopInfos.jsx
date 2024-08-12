@@ -3,7 +3,7 @@ import React, {useState, useEffect} from "react";
 export function PopNotifier({fatal, warn}) {
   return (
     <div
-      className="container d-flex align-items-center justify-content-end"
+      className="d-flex align-items-start col pb-3 justify-content-end"
       id="flash-pop-notifies">
       <button
         type="button"
@@ -17,7 +17,7 @@ export function PopNotifier({fatal, warn}) {
       </button>
       <button
         type="button"
-        className="btn btn-warning position-relative ms-4"
+        className="btn btn-warning position-relative ms-3"
         aria-label="Warnings">
         Warns
         <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">

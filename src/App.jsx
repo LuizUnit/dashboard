@@ -1,12 +1,11 @@
 import "./App.css";
-import { useLayoutEffect } from "react";
+import {useLayoutEffect} from "react";
 import Filter from "./components/Filter";
-import Navbar from "./components/Navbar.jsx";
-import Notifier from "./components/RefreshPopInfos.jsx";
+import PopNotifier from "./components/RefreshPopInfos.jsx";
 
 function App() {
-  var itensParaCorrecao = new Set();
-  var formData;
+  let itensParaCorrecao = new Set();
+  let formData;
 
   function destroyOl() {
     const div = document.getElementById("contains-ol");
@@ -20,9 +19,9 @@ function App() {
     let jsonString = element.querySelector(".json-viewer").innerHTML.trim();
     try {
       let jsonData = JSON.parse(jsonString);
-      var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/gm;
-      var replacer = function (match, pIndent, pKey, pVal, pEnd) {
-        var key = '<span class="json-key" style="color: #e10000">',
+      let jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/gm;
+      let replacer = function (match, pIndent, pKey, pVal, pEnd) {
+        let key = '<span class="json-key" style="color: #e10000">',
           val = '<span class="json-value" style="color: #001dff">',
           str = '<span class="json-string" style="color: black">',
           r = pIndent || "";
@@ -41,7 +40,9 @@ function App() {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(jsonLine, replacer);
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   function startContent() {
@@ -55,7 +56,7 @@ function App() {
       const response = await axios.put(
         "http://127.0.0.1:8000/api/processados",
         {
-          params: { id: id },
+          params: {id: id},
         }
       );
     } catch (error) {
@@ -65,7 +66,6 @@ function App() {
 
   useLayoutEffect(() => {
     startContent();
-
     document
       .getElementById("submit-button-filter")
       .addEventListener("click", async function (event) {
@@ -142,26 +142,26 @@ function App() {
   }
 
   function CreateSelectAllBox() {
-    let inputElement = document.createElement("input");
-    inputElement.className = "form-check-input select-all-box";
+    const inputElement = document.createElement("input");
+    inputElement.className = "form-check-input me-2 select-all-box";
     inputElement.type = "checkbox";
 
-    let divElement = document.createElement("div");
+    const divElement = document.createElement("div");
     divElement.className =
       "d-flex justify-content-center align-items-center form-check col-1 row-item";
     divElement.appendChild(inputElement);
 
-    let iconElement = document.createElement("i");
+    const iconElement = document.createElement("i");
     iconElement.className = "fa-solid fa-caret-down";
     divElement.appendChild(iconElement);
 
     divElement.addEventListener("click", function (e) {
       e.stopPropagation(); // Impede que o evento se propague para elementos pais
 
-      var checkboxes = document.getElementsByClassName("checkbox-status");
+      let checkboxes = document.getElementsByClassName("checkbox-status");
       for (let i = 0; i < checkboxes.length; i++) {
         if (inputElement.checked) {
-          let iconElements =
+          const iconElements =
             checkboxes[i].parentElement.getElementsByTagName("i");
           if (iconElements.length == 0) {
             // Verifica se há elementos <i> presentes
@@ -201,9 +201,9 @@ function App() {
   }
 
   function copyText(el) {
-    var preElement = el.currentTarget.parentElement.querySelector("pre");
-    var textContent = preElement.innerText;
-    var textbox = document.createElement("input");
+    let preElement = el.currentTarget.parentElement.querySelector("pre");
+    let textContent = preElement.innerText;
+    let textbox = document.createElement("input");
     textbox.type = "text";
     textbox.value = textContent;
     textbox.select();
@@ -228,10 +228,6 @@ function App() {
       "text-white",
       "justify-content-center"
     );
-
-    li.onclick = function () {
-      prettyPrint(this);
-    };
 
     li.setAttribute("aria-expanded", "false");
     let statusIcon;
@@ -273,6 +269,10 @@ function App() {
           </div>
       </div>
   `;
+  li.querySelector(".expand-button").onclick = function () {
+    prettyPrint(this.parentElement.parentElement);
+  };
+  
     return li;
   }
 
@@ -296,7 +296,7 @@ function App() {
       let minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
       let seconds = Math.floor(diffInSeconds % 60);
 
-      return { days, hours, minutes, seconds };
+      return {days, hours, minutes, seconds};
     }
     return "Em progresso";
   }
@@ -319,7 +319,7 @@ function App() {
   async function getLogs(lastIndex) {
     await axios
       .post("http://127.0.0.1:8000/api/processados", formData, {
-        params: { lastIndex: lastIndex },
+        params: {lastIndex: lastIndex},
       })
       .then(function (response) {
         const data = response.data;
@@ -336,15 +336,17 @@ function App() {
           observer.observe(listItem);
           olBody.appendChild(listItem);
           let input = document.getElementById("input" + el.id);
-          input.addEventListener("click", function () {
-            let inputId = "input" + el.id;
-            if (itensParaCorrecao.has(inputId)) {
-              itensParaCorrecao.delete(inputId);
-            } else {
-              itensParaCorrecao.add(inputId);
-            }
-            input = document.getElementById(inputId);
-          });
+          if (input) {
+            input.addEventListener("click", function () {
+              let inputId = "input" + el.id;
+              if (itensParaCorrecao.has(inputId)) {
+                itensParaCorrecao.delete(inputId);
+              } else {
+                itensParaCorrecao.add(inputId);
+              }
+              input = document.getElementById(inputId);
+            });
+          }
 
           const i = document.getElementById(el.id).querySelector(".fa-copy");
           i.addEventListener("click", function (el) {
@@ -359,9 +361,6 @@ function App() {
       });
   }
 
-  // Definição das opções para ambos os observadores
-
-  // Primeiro observador para carregar conteúdo quando o último cartão entra na viewport
   const lastCardObserver = new IntersectionObserver((entries) => {
     const lastCard = entries[0];
     if (!lastCard.isIntersecting) return;
@@ -369,7 +368,6 @@ function App() {
     lastCardObserver.unobserve(lastCard.target);
   });
 
-  // Segundo observador para adicionar/remover a classe 'show' com base na interseção
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       entry.target.classList.toggle("show", entry.isIntersecting);
@@ -379,10 +377,11 @@ function App() {
     <>
       <div
         className=" d-flex flex-row row-4 justify-content-center"
-        id="contains-ol"
-      >
-        <Notifier />
-        <Filter />
+        id="contains-ol">
+        <div className="d-flex flex-column row-4 pt-4 mx-4 align-items-start">
+          <PopNotifier />
+          <Filter />
+        </div>
       </div>
     </>
   );
