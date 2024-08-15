@@ -322,6 +322,7 @@ function App() {
         params: {lastIndex: lastIndex},
       })
       .then(function (response) {
+        console.log(response.data)
         const data = response.data;
         const olBody = document.getElementById("ol-body");
         data.forEach((el) => {
