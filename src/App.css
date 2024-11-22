@@ -198,6 +198,14 @@ body{
   background-color: white;
 }
 
+#change_card_item_status_btn{
+  height: 30px;
+  min-width: 30px;
+  width: 30px;
+  display: flex;
+  justify-content: center;
+}
+
 #select-all-div {
   display: flex;
   align-items: center;

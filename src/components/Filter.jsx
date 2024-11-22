@@ -2,7 +2,6 @@ import {useState, useEffect} from "react";
 
 export default function Filter() {
   const [procedures, setProcedures] = useState(null);
-
   const [warnChecked, setwarnChecked] = useState(true);
   const [successChecked, setSuccessChecked] = useState(true);
   const [runningChecked, setRunningChecked] = useState(true);
@@ -10,7 +9,7 @@ export default function Filter() {
 
   async function getProcedures() {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/procedures");
+      const response = await axios.get("http://127.0.0.1:8000/api/procedures");
       setProcedures(response.data);
     } catch (error) {
       console.error("Erro ao fazer a requisição:", error);
@@ -44,7 +43,7 @@ export default function Filter() {
         timePicker: true,
         locale: {
           format: "DD/MM/YYYY HH:mm",
-        }
+        },
       });
     });
     getProcedures(); // Chamada corrigida
@@ -53,26 +52,38 @@ export default function Filter() {
   return (
     <form id="filter-form" className="col">
       <div>
-        <input
-          list="datalistOptions"
-          name="procedure"
-          className="form-control mb-2"
-          id="exampleDataList"
-          placeholder="Escolha um procedimento"></input>
-        <datalist id="datalistOptions">
           {procedures &&
             procedures.map((procedure, index) => (
-              <option key={index} value={procedure.procedure}>
-                {procedure.procedure}
-              </option>
+              <div key={index} className="form-check text-white">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  name={procedure.procedure} // Array para enviar múltiplos valores
+                  value={procedure.procedure} // Valor dinâmico do procedimento
+                  id={`flexCheckChecked${index}`} // ID único para cada checkbox
+                  onChange={handleCheckboxChange}
+                />
+
+                <label
+                  className="form-check-label"
+                  htmlFor={`flexCheckChecked${index}`}>
+                  {" "}
+                  {/* ID único aqui também */}
+                  {procedure.procedure} {/* Nome do procedimento exibido */}
+                </label>
+              </div>
             ))}
-        </datalist>
+
+        <input
+          name="content"
+          className="form-control mb-3 mt-4"
+          placeholder="Pesquisa por conteúdo."></input>
 
         <div className="date" data-provide="datepicker">
           <input
             type="text"
             name="datetimes"
-            className="form-control mb-2"
+            className="form-control mb-4"
             placeholder="Selecione uma data"
           />
           <div className="input-group-addon">
@@ -141,8 +152,8 @@ export default function Filter() {
       <button
         id="submit-button-filter"
         tyrette="button"
-        className="btn btn-primary">
-        Submit
+        className="btn btn-primary mt-3">
+        Enviar
       </button>
     </form>
   );

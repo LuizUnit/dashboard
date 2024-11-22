@@ -16,51 +16,80 @@ function App() {
   }
 
   function prettyPrint(element) {
-    let jsonString = element.querySelector(".json-viewer").innerHTML.trim();
+    // Obtém a string JSON do elemento
+    let jsonString = element.querySelector(".json-viewer").innerText.trim();
+    
+// Remover "(truncated...)" e qualquer coisa que siga, como quebras de linha
+jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
+
     try {
+      // Tenta analisar a string JSON
       let jsonData = JSON.parse(jsonString);
+  
+      // Cria a versão formatada com indentação
+      let formattedJson = JSON.stringify(jsonData, null, 2); // Usa 2 espaços para indentação
+  
+      // Função para adicionar as cores ao JSON
       let jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/gm;
       let replacer = function (match, pIndent, pKey, pVal, pEnd) {
         let key = '<span class="json-key" style="color: #e10000">',
-          val = '<span class="json-value" style="color: #001dff">',
-          str = '<span class="json-string" style="color: black">',
-          r = pIndent || "";
-        if (pKey) r = r + key + pKey.replace(/[": ]/g, "") + "</span>: ";
-        if (pVal) r = r + (pVal[0] == '"' ? str : val) + pVal + "</span>";
+            val = '<span class="json-value" style="color: #001dff">',
+            str = '<span class="json-string" style="color: black">',
+            r = pIndent || "";
+  
+        // Estiliza as chaves e valores
+        if (pKey) r += key + pKey.replace(/[": ]/g, "") + "</span>: ";
+        if (pVal) r += (pVal[0] === '"' ? str : val) + pVal + "</span>";
         return r + (pEnd || "");
       };
-
-      element.querySelector(".json-viewer").innerHTML = JSON.stringify(
-        jsonData,
-        null,
-        3
-      )
+  
+      // Substitui os elementos JSON com as cores
+      element.querySelector(".json-viewer").innerHTML = formattedJson
         .replace(/&/g, "&amp;")
         .replace(/\\"/g, "&quot;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(jsonLine, replacer);
+    
     } catch (e) {
-      console.error(e);
+      console.error("Erro ao analisar o JSON:", e);
     }
   }
-
+  
+  
   function startContent() {
     if (createOl()) {
       loadContent();
     }
   }
 
-  async function corrigeTask(id) {
+  async function corrigeTask() {
     try {
       const response = await axios.put(
-        "http://127.0.0.1:8000/api/processados",
+        "http://127.0.0.1:8000/api/processados", // Endpoint para corrigir os itens
         {
-          params: {id: id},
+          params: {id: Array.from(itensParaCorrecao)}, // Passa os ids como um array
         }
       );
+
+      itensParaCorrecao.forEach((id) => {
+        const listItem = document.getElementById(id); // Encontra o item na lista
+        if (listItem) {
+          const statusIcon = listItem.querySelector(".status-circle"); // Encontra o ícone de status
+          if (statusIcon) {
+            statusIcon.classList.remove(
+              "fa-circle-pause",
+              "fa-circle-exclamation",
+              "fa-circle-xmark"
+            ); // Remove ícones antigos
+            statusIcon.classList.add("fa-circle-check"); // Adiciona o ícone de "sucesso"
+            statusIcon.style.color = "#32CD32"; // Altera a cor para verde (sucesso)
+          }
+        }
+        itensParaCorrecao.delete(id);
+      });
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao corrigir os itens:", error);
     }
   }
 
@@ -126,6 +155,7 @@ function App() {
     corrigido.appendChild(selectAllBox);
 
     corrigido.className = "fw-bold col-1 row-item";
+    corrigido.id = "select_all_div";
 
     const emptySpace = document.createElement("span");
     emptySpace.className = "fw-bold col-1 row-item";
@@ -160,22 +190,45 @@ function App() {
 
       let checkboxes = document.getElementsByClassName("checkbox-status");
       for (let i = 0; i < checkboxes.length; i++) {
+        const id = checkboxes[i].id.startsWith("input")
+          ? checkboxes[i].id.replace("input", "")
+          : checkboxes[i].id;
+
         if (inputElement.checked) {
           const iconElements =
             checkboxes[i].parentElement.getElementsByTagName("i");
+
           if (iconElements.length == 0) {
-            // Verifica se há elementos <i> presentes
-            checkboxes[i].checked = true; // Usa true para marcar o checkbox
+            checkboxes[i].checked = true;
           } else {
             checkboxes[i].checked = false; // Usa false para desmarcar o checkbox
           }
         } else {
           checkboxes[i].checked = false; // Usa false para desmarcar o checkbox
         }
+
+        manageItensParaCorrecao(id);
       }
+      manageCorrectCardItensButtonVisibility();
     });
 
     return divElement;
+  }
+
+  function createCorrectButton() {
+    const button = document.createElement("button");
+    button.className = "btn  btn-success";
+    button.id = "change_card_item_status_btn";
+    const correctIcon = document.createElement("i");
+    correctIcon.className = "fa-solid fa-check";
+    button.appendChild(correctIcon);
+
+    // Ação do botão de correção
+    button.addEventListener("click", function () {
+      corrigeTask();
+    });
+
+    return button;
   }
 
   function createCheckBox(status, id) {
@@ -269,10 +322,10 @@ function App() {
           </div>
       </div>
   `;
-  li.querySelector(".expand-button").onclick = function () {
-    prettyPrint(this.parentElement.parentElement);
-  };
-  
+    li.querySelector(".expand-button").onclick = function () {
+      prettyPrint(this.parentElement.parentElement);
+    };
+
     return li;
   }
 
@@ -322,7 +375,6 @@ function App() {
         params: {lastIndex: lastIndex},
       })
       .then(function (response) {
-        console.log(response.data)
         const data = response.data;
         const olBody = document.getElementById("ol-body");
         data.forEach((el) => {
@@ -336,18 +388,8 @@ function App() {
           );
           observer.observe(listItem);
           olBody.appendChild(listItem);
-          let input = document.getElementById("input" + el.id);
-          if (input) {
-            input.addEventListener("click", function () {
-              let inputId = "input" + el.id;
-              if (itensParaCorrecao.has(inputId)) {
-                itensParaCorrecao.delete(inputId);
-              } else {
-                itensParaCorrecao.add(inputId);
-              }
-              input = document.getElementById(inputId);
-            });
-          }
+
+          manageItensParaCorrecao(el.id);
 
           const i = document.getElementById(el.id).querySelector(".fa-copy");
           i.addEventListener("click", function (el) {
@@ -360,6 +402,41 @@ function App() {
         console.error("Erro ao fazer a requisição:", error);
         return false;
       });
+  }
+
+  function manageItensParaCorrecao(id){
+    let input = document.getElementById("input" + id);
+
+    if (input) {
+      input.addEventListener("click", function () {
+        if (input.checked) {
+          itensParaCorrecao.add(id);
+        } else {
+          itensParaCorrecao.delete(id);
+        }
+        manageCorrectCardItensButtonVisibility();
+      });
+    }
+  }
+
+  function manageCorrectCardItensButtonVisibility() {
+    if (itensParaCorrecao.size > 0) {
+      const correctButton = document.getElementById(
+        "change_card_item_status_btn"
+      );
+      if (!correctButton) {
+        document
+          .getElementById("select_all_div")
+          .appendChild(createCorrectButton());
+      }
+    } else {
+      const correctButton = document.getElementById(
+        "change_card_item_status_btn"
+      );
+      if (correctButton) {
+        document.getElementById("select_all_div").removeChild(correctButton);
+      }
+    }
   }
 
   const lastCardObserver = new IntersectionObserver((entries) => {
