@@ -18,31 +18,31 @@ function App() {
   function prettyPrint(element) {
     // Obtém a string JSON do elemento
     let jsonString = element.querySelector(".json-viewer").innerText.trim();
-    
-// Remover "(truncated...)" e qualquer coisa que siga, como quebras de linha
-jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
+
+    // Remover "(truncated...)" e qualquer coisa que siga, como quebras de linha
+    jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, "");
 
     try {
       // Tenta analisar a string JSON
       let jsonData = JSON.parse(jsonString);
-  
+
       // Cria a versão formatada com indentação
       let formattedJson = JSON.stringify(jsonData, null, 2); // Usa 2 espaços para indentação
-  
+
       // Função para adicionar as cores ao JSON
       let jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/gm;
       let replacer = function (match, pIndent, pKey, pVal, pEnd) {
         let key = '<span class="json-key" style="color: #e10000">',
-            val = '<span class="json-value" style="color: #001dff">',
-            str = '<span class="json-string" style="color: black">',
-            r = pIndent || "";
-  
+          val = '<span class="json-value" style="color: #001dff">',
+          str = '<span class="json-string" style="color: black">',
+          r = pIndent || "";
+
         // Estiliza as chaves e valores
         if (pKey) r += key + pKey.replace(/[": ]/g, "") + "</span>: ";
         if (pVal) r += (pVal[0] === '"' ? str : val) + pVal + "</span>";
         return r + (pEnd || "");
       };
-  
+
       // Substitui os elementos JSON com as cores
       element.querySelector(".json-viewer").innerHTML = formattedJson
         .replace(/&/g, "&amp;")
@@ -50,13 +50,11 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(jsonLine, replacer);
-    
     } catch (e) {
       console.error("Erro ao analisar o JSON:", e);
     }
   }
-  
-  
+
   function startContent() {
     if (createOl()) {
       loadContent();
@@ -74,6 +72,7 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
 
       itensParaCorrecao.forEach((id) => {
         const listItem = document.getElementById(id); // Encontra o item na lista
+        const inputItem = document.getElementById("input" + id); // Encontra o item na lista
         if (listItem) {
           const statusIcon = listItem.querySelector(".status-circle"); // Encontra o ícone de status
           if (statusIcon) {
@@ -81,13 +80,20 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
               "fa-circle-pause",
               "fa-circle-exclamation",
               "fa-circle-xmark"
-            ); // Remove ícones antigos
-            statusIcon.classList.add("fa-circle-check"); // Adiciona o ícone de "sucesso"
-            statusIcon.style.color = "#32CD32"; // Altera a cor para verde (sucesso)
+            );
+            statusIcon.classList.add("fa-circle-check");
+            statusIcon.style.color = "#32CD32";
+          }
+          if (inputItem) {
+            const fakeInput = document.createElement("div");
+            fakeInput.className = "fake-input"; // Classe para estilização
+            fakeInput.innerHTML = `<i class="fa-solid fa-lock pt-1"></i>`; // Ícone de cadeado
+            inputItem.parentNode.replaceChild(fakeInput, inputItem);
           }
         }
         itensParaCorrecao.delete(id);
       });
+      manageCorrectCardItensButtonVisibility();
     } catch (error) {
       console.error("Erro ao corrigir os itens:", error);
     }
@@ -238,9 +244,9 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
     inputElement.type = "checkbox";
 
     if (status === "SUCCESS") {
-      inputElement.classList.add("lockClick");
       let lock_element = document.createElement("i");
       lock_element.className = "fa-solid fa-lock pt-1";
+      lock_element.id = "input" + id;
       return `<div class=" col-1 row-item d-flex align-items-center justify-content-center">
         <div class="fake-input">
         ${lock_element.outerHTML}
@@ -263,10 +269,10 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
     navigator.clipboard
       .writeText(textbox.value)
       .then(function () {
-        console.log("Texto copiado para a área de transferência!");
+        alert("Texto copiado para a área de transferência!");
       })
       .catch(function (err) {
-        console.error("Erro ao copiar texto:", err);
+        alert("Erro ao copiar texto:", err);
       });
   }
 
@@ -389,7 +395,13 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
           observer.observe(listItem);
           olBody.appendChild(listItem);
 
-          manageItensParaCorrecao(el.id);
+          const input = document.getElementById("input" + el.id);
+          if (input) {
+            input.addEventListener("click", function () {
+              manageItensParaCorrecao(el.id);
+              manageCorrectCardItensButtonVisibility();
+            });
+          }
 
           const i = document.getElementById(el.id).querySelector(".fa-copy");
           i.addEventListener("click", function (el) {
@@ -404,19 +416,17 @@ jsonString = jsonString.replace(/\(truncated\.\.\.\)[\s\S]*?\\n/g, '');
       });
   }
 
-  function manageItensParaCorrecao(id){
+  function manageItensParaCorrecao(id) {
     let input = document.getElementById("input" + id);
 
     if (input) {
-      input.addEventListener("click", function () {
-        if (input.checked) {
-          itensParaCorrecao.add(id);
-        } else {
-          itensParaCorrecao.delete(id);
-        }
-        manageCorrectCardItensButtonVisibility();
-      });
+      if (input.checked) {
+        itensParaCorrecao.add(id);
+      } else {
+        itensParaCorrecao.delete(id);
+      }
     }
+    console.log(itensParaCorrecao);
   }
 
   function manageCorrectCardItensButtonVisibility() {
